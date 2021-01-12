@@ -1,5 +1,7 @@
 package ir.husseinrasti
 
+import java.lang.Exception
+
 object Algorithm {
 
     private var countObjects: Int = 0
@@ -37,43 +39,50 @@ object Algorithm {
         var lastSizeListObject = 0
         loopBox@ for (box in 0 until countBox) {
             var offset = 0
-            if ((listObjects.size == 1 && listObjects[0] > boxSize) || lastSizeListObject == countObjects) {
+            if ((listObjects.size == 1 && listObjects[0] > boxSize) || listObjects.size == lastSizeListObject) {
                 break@loopBox
             } else {
                 println("************** Box packing process number ${box + 1} *****************")
                 println("List of Objects: $listObjects\n")
+                lastSizeListObject = listObjects.size
                 loopObj@ for (indexObj in 0 until countObjects) {
-                    val obj = listObjects[indexObj - offset]
-                    lastSizeListObject = listObjects.size
-                    countObjects = listObjects.size
-                    when {
-                        isSizeObjInBox(listBox[box], obj) -> {
-                            countPackage++
-                            listBox[box] += obj
-                            listObjects.removeAt(indexObj - offset)
-                            offset++
-                            if (isFillBox(listBox[box]) || listObjects.size == 1) {
-                                countObjects = listObjects.size
-                                countBoxFilled++
-                                break@loopObj
-                            } else {
-                                countPacking++
+                    try {
+                        val obj = listObjects[indexObj - offset]
+                        countObjects = listObjects.size
+                        when {
+                            isSizeObjectInBox(listBox[box], obj) -> {
+                                countPackage++
+                                listBox[box] += obj
+                                listObjects.removeAt(indexObj - offset)
+                                offset++
+                                if (isFillBox(listBox[box]) || listObjects.size == 1) {
+                                    countObjects = listObjects.size
+                                    if (countPacking > 0) countPacking--
+                                    countBoxFilled++
+                                    break@loopObj
+                                } else {
+                                    countPacking++
+                                }
                             }
                         }
+                    } catch (e: Exception) {
+                        break@loopObj
                     }
                 }
             }
         }
+
         if (countBoxFilled < countBox) {
             if (countPacking != 0) {
                 println("$countPacking boxes are not filled.")
             }
-            println("${countBox - countBoxFilled} boxes are empty.\n")
+            println("${countBox - if (countBoxFilled == 0) countPacking else countBoxFilled} boxes are empty.\n")
         }
+
         footer(countPackage)
     }
 
-    private fun isSizeObjInBox(box: Int, obj: Int): Boolean = boxSize - box >= obj
+    private fun isSizeObjectInBox(box: Int, obj: Int): Boolean = boxSize - box >= obj
     private fun isFillBox(box: Int): Boolean = boxSize - box == 0
 
     private fun inputValue(
