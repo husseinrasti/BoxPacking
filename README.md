@@ -1,3 +1,3 @@
 # BoxPacking
 
-[Fanavard chalange](https://fanavard.com/)
+[Fanavard challange](https://fanavard.com/)
